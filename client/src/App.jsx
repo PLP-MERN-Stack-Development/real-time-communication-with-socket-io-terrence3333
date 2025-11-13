@@ -1,24 +1,23 @@
-import React, { useState, useContext } from 'react';
-import { SocketProvider, SocketContext } from './context/SocketContext';
-import Login from './pages/Login';
-import ChatRoom from './pages/ChatRoom';
-
-function AppContent() {
-  const { connect, ...socketData } = useContext(SocketContext);
-  const [username, setUsername] = useState('');
-
-  if (!username) {
-    return <Login onLogin={(name) => { setUsername(name); connect(name); }} />;
-  }
-
-  return <ChatRoom {...socketData} />;
-}
+import { useState } from 'react';
+import { Login } from './pages/Login';
+import { ChatRoom } from './pages/ChatRoom';
+import { useSocket } from './hooks/useSocket';
 
 function App() {
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [username, setUsername] = useState('');
+  const { connect } = useSocket();
+
+  const handleLogin = (name) => {
+    setUsername(name);
+    connect(name);
+    setLoggedIn(true);
+  };
+
   return (
-    <SocketProvider>
-      <AppContent />
-    </SocketProvider>
+    <div>
+      {loggedIn ? <ChatRoom username={username} /> : <Login onLogin={handleLogin} />}
+    </div>
   );
 }
 
